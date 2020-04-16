@@ -1,0 +1,8 @@
+db/data/*
+db/files/*
+nginx/log/*
+nginx/sites-available/*
+nginx/sites-enabled/*
+php/composer/*
+www/*
+.env
