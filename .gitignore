@@ -1,8 +1,12 @@
 db/data/*
 db/files/*
+db/.DS_Store
 nginx/log/*
 nginx/sites-available/*
 nginx/sites-enabled/*
+nginx/.DS_Store
 php/composer/*
+php/.DS_Store
 www/*
 .env
+.DS_Store
