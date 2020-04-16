@@ -4,7 +4,7 @@ services:
 
   db:
     container_name: ${DB_CONTAINER_NAME}
-    image: mariadb:latest
+    build: ./db
     ports:
       - ${DB_HOST_PORT}:3306
     environment:
