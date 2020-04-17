@@ -157,49 +157,48 @@ function site_install_laravel()
 {
     echo ""
     echo "install laravel in ${1}..."
-    sh_nginx "cd /var/www/${1} && rm -f ${APP_LARAVEL_VERSION}.zip"
-    sh_nginx "cd /var/www/${1} && wget https://github.com/laravel/laravel/archive/${APP_LARAVEL_VERSION}.zip"
-    sh_nginx "cd /var/www/${1} && rm -Rf laravel-*"
-    sh_nginx "cd /var/www/${1} && unzip ${APP_LARAVEL_VERSION}.zip"
-    sh_nginx "cd /var/www/${1} && rm -f ${APP_LARAVEL_VERSION}.zip"
-    sh_nginx "cd /var/www/${1} && mv src \"src-\$(date +'%Y%m%d%H%M%S')-bak\""
-    sh_nginx "cd /var/www/${1} && mv laravel-${APP_LARAVEL_VERSION} src"
-    sh_php "cd /var/www/${1}/src && composer update"
-    sh_nginx "cd /var/www/${1}/src && . /var/www/${1}/conf/mysql.conf \
-        && sed \"s/APP_NAME=Laravel/APP_NAME=${1}/g\" .env.example \
+    sh_php "cd /var/www/${1} \
+        && rm -Rf ${APP_LARAVEL_TAG_VERSION} \
+        && composer create-project laravel/laravel:${APP_LARAVEL_TAG_VERSION} ${APP_LARAVEL_TAG_VERSION} --prefer-dist \
+        && cd ${APP_LARAVEL_TAG_VERSION} \
+        && . /var/www/${1}/conf/mysql.conf \
+        && cp .env .env.bak \
+        && sed \"s/APP_NAME=Laravel/APP_NAME=${1}/g\" .env.bak \
         | sed \"s/APP_URL=http:\/\/localhost/APP_URL=http:\/\/${1}/g\" \
         | sed \"s/DB_HOST=127.0.0.1/DB_HOST=db/g\" \
         | sed \"s/DB_DATABASE=laravel/DB_DATABASE=\${database}/g\" \
         | sed \"s/DB_USERNAME=root/DB_USERNAME=\${username}/g\" \
-        | sed \"s/DB_PASSWORD=/DB_PASSWORD=\${password}/g\" > .env"
-    sh_php "cd /var/www/${1}/src && php artisan key:generate"
-    sh_nginx "cd /var/www/${1} && chown -Rf www-data:www-data src"
+        | sed \"s/DB_PASSWORD=/DB_PASSWORD=\${password}/g\" > .env \
+        && cd .. \
+        && chown -Rf www-data:www-data ${APP_LARAVEL_TAG_VERSION} \
+        && mv src \"src-\$(date +'%Y%m%d%H%M%S')-bak\" \
+        && mv ${APP_LARAVEL_TAG_VERSION} src"
     echo "laravel installed!"
 }
 
 function site_install_wordpress()
 {
-    #TODO: add date in bak to preven overwrite
     echo ""
     echo "install wordpress in ${1}..."
-    sh_nginx "cd /var/www/${1} && rm -f ${APP_WORDPRESS_VERSION}.zip"
-    sh_nginx "cd /var/www/${1} && wget https://github.com/WordPress/WordPress/archive/${APP_WORDPRESS_VERSION}.zip"
-    sh_nginx "cd /var/www/${1} && rm -Rf WordPress-*"
-    sh_nginx "cd /var/www/${1} && unzip ${APP_WORDPRESS_VERSION}.zip"
-    sh_nginx "cd /var/www/${1} && rm -f ${APP_WORDPRESS_VERSION}.zip"
-    sh_nginx "cd /var/www/${1} && mv src \"src-\$(date +'%Y%m%d%H%M%S')-bak\""
-    sh_nginx "cd /var/www/${1} && mkdir src && mv WordPress-${APP_WORDPRESS_VERSION} src/public"
-    sh_nginx "cd /var/www/${1}/src/public && . /var/www/${1}/conf/mysql.conf \
+    sh_php "cd /var/www/${1} \
+        && rm -Rf ${APP_WORDPRESS_TAG_VERSION} \
+        && composer create-project johnpbloch/wordpress:${APP_WORDPRESS_TAG_VERSION} ${APP_WORDPRESS_TAG_VERSION} --prefer-dist \
+        && cd ${APP_WORDPRESS_TAG_VERSION} \
+        && mv wordpress public \
+        && . /var/www/${1}/conf/mysql.conf \
+        && cd public \
         && sed \"s/database_name_here/\$database/g\" wp-config-sample.php \
         | sed \"s/username_here/\$username/g\" \
         | sed \"s/password_here/\$password/g\" \
-        | sed \"s/localhost/db/g\" > wp-config.php"
-    sh_nginx "cd /var/www/${1}/src/public \
+        | sed \"s/localhost/db/g\" > wp-config.php \
         && STR_PATTERN='put your unique phrase here' \
         && STR_REPLACE=\$(curl -L https://api.wordpress.org/secret-key/1.1/salt/) \
         && printf '%s\n' \"g/\$STR_PATTERN/d\" a \"\$STR_REPLACE\" . w \
-        | ed -s wp-config.php"
-    sh_nginx "cd /var/www/${1} && chown -Rf www-data:www-data src"
+        | ed -s wp-config.php \
+        && cd ../.. \
+        && chown -Rf www-data:www-data ${APP_WORDPRESS_TAG_VERSION} \
+        && mv src \"src-\$(date +'%Y%m%d%H%M%S')-bak\" \
+        && mv ${APP_WORDPRESS_TAG_VERSION} src"
     echo "wordpress installed!"
 }
 

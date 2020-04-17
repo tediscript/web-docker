@@ -15,7 +15,10 @@ RUN apt-get install -y \
         libcurl4-openssl-dev \
         libxml2-dev \
         zip \
-        unzip
+        unzip \
+        wget \
+        curl \
+        ed
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
 
