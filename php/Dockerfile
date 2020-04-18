@@ -22,4 +22,8 @@ RUN apt-get install -y \
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
 
+RUN curl -o /root/.composer/keys.dev.pub https://composer.github.io/snapshots.pub
+
+RUN curl -o /root/.composer/keys.tags.pub https://composer.github.io/releases.pub
+
 RUN apt-get autoremove -y
