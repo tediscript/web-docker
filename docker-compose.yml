@@ -20,7 +20,7 @@ services:
       - ${PHP_FPM_HOST_PORT}:9000
     volumes:
       - ${PHP_HOST_WWW_PATH}:/var/www
-      - ${PHP_HOST_COMPOSER_DATA_PATH}:/root/.composer
+      - ${PHP_HOST_COMPOSER_CACHE_PATH}:/root/.composer/cache
     working_dir: /var/www
     depends_on:
       - db
