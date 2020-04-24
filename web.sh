@@ -9,6 +9,11 @@ function version()
     echo ""
 }
 
+function echo_php()
+{
+    docker exec -it ${PHP_CONTAINER_NAME} echo "${1}"
+}
+
 function echo_nginx()
 {
     docker exec -it ${NGINX_CONTAINER_NAME} echo "${1}"
@@ -202,6 +207,24 @@ function site_install_wordpress()
     echo "wordpress installed!"
 }
 
+function site_install_phpmyadmin()
+{
+    echo ""
+    echo "install phpmyadmin in ${1}..."
+    export LC_CTYPE=C
+    local blowfish_secret=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+    sh_php "cd /var/www/${1} \
+        && rm -Rf ${APP_PHPMYADMIN_TAG_VERSION} \
+        && composer create-project phpmyadmin/phpmyadmin:${APP_PHPMYADMIN_TAG_VERSION} ${APP_PHPMYADMIN_TAG_VERSION} --prefer-dist \
+        && mv src \"src-\$(date +'%Y%m%d%H%M%S')-bak\" \
+        && mkdir src \
+        && mv ${APP_PHPMYADMIN_TAG_VERSION} src/public \
+        && sed \"s/\['blowfish_secret'\] = ''/\['blowfish_secret'\] = '${blowfish_secret}'/g\" src/public/config.sample.inc.php \
+        | sed \"s/\['host'\] = 'localhost'/\['host'\] = 'db'/g\" > src/public/config.inc.php \
+        && chown -Rf www-data:www-data src"
+    echo "phpmyadmin installed!"
+}
+
 function site_install()
 {
     if [ -z "$2" ] || [ ${2} == "--helloworld" ] || [ ${2} == "--base" ]; then
@@ -210,6 +233,8 @@ function site_install()
         site_install_laravel ${1}
     elif [ ${2} == "--wp" ] || [ ${2} == "--wordpress" ]; then
         site_install_wordpress ${1}
+    elif [ ${2} == "--wp" ] || [ ${2} == "--phpmyadmin" ]; then
+        site_install_phpmyadmin ${1}
     else
         echo "${2} command not supported"
     fi
