@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y \
 	wget \
 	zip \
 	unzip \
-	ed
+	ed \
+	certbot \
+	python-certbot-nginx
 
 RUN apt-get autoremove -y
