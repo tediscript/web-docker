@@ -358,8 +358,10 @@ function host()
 {
     if [ ${1} == "add" ]; then
         echo "127.0.0.1 ${2}" >> /etc/hosts
+        echo "::1 ${2}" >> /etc/hosts
     elif [ ${1} == "remove" ]; then
         sed "s/127.0.0.1 ${2}//" /etc/hosts > hosts.bak && mv hosts.bak /etc/hosts
+        sed "s/::1 ${2}//" /etc/hosts > hosts.bak && mv hosts.bak /etc/hosts
     else
         echo "command not supported"
     fi
